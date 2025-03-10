@@ -10,10 +10,12 @@ public class PlayerUIController : MonoBehaviour
     public TMP_Text notificationText;
 
     private WeaponSystem weaponSystem;
+    private GameManager gameManager;
     private PlayerHealth playerHealth;
 
     void Start()
     {
+        gameManager = FindFirstObjectByType<GameManager>();
         weaponSystem = GetComponent<WeaponSystem>();
         playerHealth = GetComponent<PlayerHealth>();
 
@@ -38,7 +40,7 @@ public class PlayerUIController : MonoBehaviour
 
     void UpdateHealthDisplay()
     {
-        healthBar.value = playerHealth.GetCurrentHealthPercentage();
+        healthBar.value = gameManager.Player.GetCurrentHealthPercentage();
     }
 
     public void UpdateNotification(string message)

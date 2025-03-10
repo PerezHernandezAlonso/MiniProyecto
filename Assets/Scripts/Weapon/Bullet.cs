@@ -14,6 +14,7 @@ public class Bullet : MonoBehaviour
         Destroy(gameObject, lifetime);
     }
 
+
     void OnCollisionEnter(Collision collision)
     {
         // Comprobar si el objeto golpeado tiene un componente de salud

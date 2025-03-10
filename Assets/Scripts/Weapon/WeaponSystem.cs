@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Cinemachine;
 
 public class WeaponSystem : MonoBehaviour
 {
@@ -15,16 +16,20 @@ public class WeaponSystem : MonoBehaviour
     private PlayerInputActions inputActions;
 
     [Header("Fire Point")]
-    public Transform firePoint;
+    public Transform firePoint; // El punto donde aparecen las balas
+    public CinemachineCamera aimCamera; // Referencia a la cámara de apuntado
 
     private PlayerUIController uiController;
+    private bool isAiming = false;
 
     void Awake()
     {
-        inputActions = new PlayerInputActions();
+        inputActions = GameManager.Singleton.PlayerInputActions;
         inputActions.Player.Shoot.performed += ctx => Shoot();
         inputActions.Player.Reload.performed += ctx => StartCoroutine(Reload());
         inputActions.Player.SwitchWeapon.performed += ctx => SwitchWeapon();
+        inputActions.Player.Aim.performed += ctx => isAiming = true;
+        inputActions.Player.Aim.canceled += ctx => isAiming = false;
 
         uiController = GetComponent<PlayerUIController>();
 
@@ -43,18 +48,22 @@ public class WeaponSystem : MonoBehaviour
 
     void Update()
     {
-        if (weapons.Count == 0) return;
-
-        Weapon currentWeapon = weapons[currentWeaponIndex];
-
-        if (currentWeapon.isAutomatic && inputActions.Player.Shoot.IsPressed() && Time.time >= nextFireTime)
+        if (Time.deltaTime > 0.0f)
         {
-            Shoot();
+            if (weapons.Count == 0) return;
+
+            Weapon currentWeapon = weapons[currentWeaponIndex];
+
+            if (currentWeapon.isAutomatic && inputActions.Player.Shoot.IsPressed() && Time.time >= nextFireTime)
+            {
+                Shoot();
+            }
         }
     }
 
     void Shoot()
     {
+        if (CheckPause()) return;
         if (isReloading || weapons.Count == 0) return;
 
         Weapon currentWeapon = weapons[currentWeaponIndex];
@@ -68,13 +77,32 @@ public class WeaponSystem : MonoBehaviour
 
         nextFireTime = Time.time + currentWeapon.fireRate;
 
-        Instantiate(currentWeapon.bulletPrefab, firePoint.position, firePoint.rotation);
+        // Obtener la dirección correcta del disparo
+        Vector3 shootDirection = GetShootDirection();
+
+        GameObject bullet = Instantiate(currentWeapon.bulletPrefab, firePoint.position, Quaternion.LookRotation(shootDirection));
+
         currentWeapon.currentAmmo--;
         uiController.UpdateNotification($"Disparo con: {currentWeapon.weaponName}. Munición: {currentWeapon.currentAmmo}/{currentWeapon.additionalAmmo}");
     }
 
+    Vector3 GetShootDirection()
+    {
+        if (isAiming && aimCamera != null)
+        {
+            // Dispara hacia donde está mirando la cámara de apuntado
+            return aimCamera.transform.forward;
+        }
+        else
+        {
+            // Dispara hacia adelante desde el firePoint
+            return firePoint.forward;
+        }
+    }
+
     IEnumerator Reload()
     {
+        if (CheckPause()) yield break;
         if (isReloading || weapons.Count == 0) yield break;
 
         isReloading = true;
@@ -90,30 +118,15 @@ public class WeaponSystem : MonoBehaviour
 
     void SwitchWeapon()
     {
+        if (CheckPause()) return;
         if (weapons.Count < 2) return;
 
         currentWeaponIndex = (currentWeaponIndex + 1) % weapons.Count;
         uiController.UpdateNotification("Arma cambiada a: " + weapons[currentWeaponIndex].weaponName);
     }
 
-    public void AddWeapon(Weapon newWeapon)
+    public bool CheckPause()
     {
-        if (!weapons.Contains(newWeapon))
-        {
-            weapons.Add(newWeapon);
-            newWeapon.InitializeAmmo();
-            newWeapon.additionalAmmo = newWeapon.initialAdditionalAmmo;
-            uiController.UpdateNotification("Arma añadida: " + newWeapon.weaponName);
-        }
-    }
-
-    public void RemoveWeapon(string weaponName)
-    {
-        Weapon weaponToRemove = weapons.Find(w => w.weaponName == weaponName);
-        if (weaponToRemove != null)
-        {
-            weapons.Remove(weaponToRemove);
-            uiController.UpdateNotification("Arma eliminada: " + weaponName);
-        }
+        return Time.deltaTime <= 0.0f;
     }
 }
