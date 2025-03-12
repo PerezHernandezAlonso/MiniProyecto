@@ -24,12 +24,14 @@ public class Trap : MonoBehaviour
         if (other.gameObject.CompareTag("Player"))
         {
             makeDamage();
-
+        }else if (other.gameObject.CompareTag("Enemy"))
+        {
+            other.gameObject.GetComponent<Health>().TakeDamage(10);
         }
     }
     public void makeDamage()
     {
-        gameManager.Player.TakeDamage(contactDamage);
+        GameManager.Singleton.Player.TakeDamage(contactDamage);
         Debug.Log("Daño realizado");
     }
     

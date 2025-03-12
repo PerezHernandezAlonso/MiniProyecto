@@ -1,5 +1,6 @@
 using UnityEngine;
 using Unity.Cinemachine;
+using System.Reflection.Emit;
 
 public class AimSystem : MonoBehaviour
 {
@@ -8,6 +9,7 @@ public class AimSystem : MonoBehaviour
     public Transform firePoint; // Orbe flotante desde donde se disparan las balas
     public Transform playerTransform; // Referencia al jugador
     public LayerMask aimLayerMask; // Capas con las que interactúa el raycast
+    public GameObject playerModel;
 
     [Header("Settings")]
     public float aimDistance = 2f; // Distancia fija frente al jugador
@@ -15,6 +17,7 @@ public class AimSystem : MonoBehaviour
     public float rotationSpeed = 10f; // Velocidad de suavizado de rotación
     public float minHeightOffset = 1.5f; // Mínima altura sobre el suelo
 
+    private int playerLayer;
     private PlayerInputActions inputActions;
     private bool isAiming = false;
     private Vector3 originalFirePointPosition; // Guarda la posición inicial del orbe
@@ -29,6 +32,7 @@ public class AimSystem : MonoBehaviour
 
     void Start()
     {
+        playerLayer = playerModel.layer;
         originalFirePointPosition = firePoint.localPosition; // Guarda la posición inicial relativa al jugador
         originalFirePointRotation = firePoint.localRotation; // Guarda la rotación original relativa al jugador
     }
@@ -59,6 +63,7 @@ public class AimSystem : MonoBehaviour
         if (aimCamera != null)
         {
             aimCamera.Priority = 20; // Asegurar que la cámara de apuntado sea prioritaria
+            ChangeLayer(playerModel, LayerMask.NameToLayer("PlayerHidden"));
         }
     }
 
@@ -68,6 +73,7 @@ public class AimSystem : MonoBehaviour
         if (aimCamera != null)
         {
             aimCamera.Priority = 0; // Volver a la cámara normal
+            ChangeLayer(playerModel, playerLayer);
         }
     }
 
@@ -130,6 +136,15 @@ public class AimSystem : MonoBehaviour
         else
         {
             return playerTransform.forward; // Cuando no se apunta, dispara en la dirección del jugador
+        }
+    }
+
+    void ChangeLayer(GameObject obj, int newLayer)
+    {
+        obj.layer = newLayer;
+        foreach (Transform child in obj.transform)
+        {
+            child.gameObject.layer = newLayer; // Aplica la capa a todos los hijos del jugador
         }
     }
 }

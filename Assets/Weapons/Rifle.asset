@@ -13,10 +13,12 @@ MonoBehaviour:
   m_Name: Rifle
   m_EditorClassIdentifier: 
   weaponName: Rifle
-  bulletPrefab: {fileID: 8766660627555232225, guid: 941e5394f01db3b41b97f3cb20645245, type: 3}
+  bulletPrefab: {fileID: 8766660627555232225, guid: c3c7321f842d4424dbb0a8ab02e15dc8, type: 3}
   fireRate: 0.1
   maxAmmo: 3
   currentAmmo: 3
-  additionalAmmo: 0
+  additionalAmmo: 6
   initialAdditionalAmmo: 12
   isAutomatic: 0
+  timeToShoot: 2
+  canShoot: 1

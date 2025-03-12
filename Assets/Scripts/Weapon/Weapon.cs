@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 [System.Serializable]
@@ -12,6 +13,9 @@ public class Weapon : ScriptableObject
     public int additionalAmmo;
     public int initialAdditionalAmmo;
     public bool isAutomatic;
+    public float timeToShoot = 0f;
+    public bool canShoot = true;
+    
 
     public void InitializeAmmo()
     {
@@ -27,4 +31,8 @@ public class Weapon : ScriptableObject
         currentAmmo += ammoToReload;
         additionalAmmo -= ammoToReload;
     }
+
+
+
+
 }

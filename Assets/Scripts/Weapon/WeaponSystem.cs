@@ -4,6 +4,7 @@ using UnityEngine.InputSystem;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Cinemachine;
+using Unity.VisualScripting;
 
 public class WeaponSystem : MonoBehaviour
 {
@@ -21,11 +22,12 @@ public class WeaponSystem : MonoBehaviour
 
     private PlayerUIController uiController;
     private bool isAiming = false;
+    private float timeToShoot;
 
     void Awake()
     {
         inputActions = GameManager.Singleton.PlayerInputActions;
-        inputActions.Player.Shoot.performed += ctx => Shoot();
+        inputActions.Player.Shoot.performed += ctx => StartCoroutine(waitToShoot());
         inputActions.Player.Reload.performed += ctx => StartCoroutine(Reload());
         inputActions.Player.SwitchWeapon.performed += ctx => SwitchWeapon();
         inputActions.Player.Aim.performed += ctx => isAiming = true;
@@ -39,6 +41,7 @@ public class WeaponSystem : MonoBehaviour
             {
                 weapon.InitializeAmmo();
                 weapon.additionalAmmo = weapon.initialAdditionalAmmo;
+                weapon.canShoot = true;
             }
         }
     }
@@ -53,16 +56,19 @@ public class WeaponSystem : MonoBehaviour
             if (weapons.Count == 0) return;
 
             Weapon currentWeapon = weapons[currentWeaponIndex];
+            timeToShoot = currentWeapon.timeToShoot;
 
             if (currentWeapon.isAutomatic && inputActions.Player.Shoot.IsPressed() && Time.time >= nextFireTime)
             {
-                Shoot();
+                StartCoroutine(waitToShoot());
+                
             }
         }
     }
 
     void Shoot()
     {
+      
         if (CheckPause()) return;
         if (isReloading || weapons.Count == 0) return;
 
@@ -84,6 +90,7 @@ public class WeaponSystem : MonoBehaviour
 
         currentWeapon.currentAmmo--;
         uiController.UpdateNotification($"Disparo con: {currentWeapon.weaponName}. Munición: {currentWeapon.currentAmmo}/{currentWeapon.additionalAmmo}");
+        
     }
 
     Vector3 GetShootDirection()
@@ -99,7 +106,23 @@ public class WeaponSystem : MonoBehaviour
             return firePoint.forward;
         }
     }
+    IEnumerator waitToShoot()
+    {   
+        if (weapons[currentWeaponIndex].canShoot == true && weapons[currentWeaponIndex].currentAmmo > 0)
+        {
+            if (currentWeaponIndex == 1)
+            {
+                GameManager.Singleton.SpawnVFX(GameManager.Singleton.particles[1], gameObject);
+            }
+            weapons[currentWeaponIndex].canShoot = false;
+            yield return new WaitForSeconds(timeToShoot);
+            weapons[currentWeaponIndex].canShoot = true;
+            if (weapons[currentWeaponIndex].canShoot == true) Shoot();
+        }
+        yield return new WaitForSeconds(0f);
 
+        
+    }
     IEnumerator Reload()
     {
         if (CheckPause()) yield break;

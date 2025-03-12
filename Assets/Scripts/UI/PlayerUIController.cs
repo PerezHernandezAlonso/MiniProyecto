@@ -18,9 +18,11 @@ public class PlayerUIController : MonoBehaviour
         gameManager = FindFirstObjectByType<GameManager>();
         weaponSystem = GetComponent<WeaponSystem>();
         playerHealth = GetComponent<PlayerHealth>();
+        GameManager.Singleton.Player = playerHealth;
 
         if (weaponSystem == null) Debug.LogError("WeaponSystem no encontrado en el GameObject actual");
         if (playerHealth == null) Debug.LogError("PlayerHealth no encontrado en el GameObject actual");
+        if (healthBar == null) Debug.LogError("HealthBar no encontrado en el GameObject actual");
     }
 
     void Update()
@@ -28,6 +30,8 @@ public class PlayerUIController : MonoBehaviour
         UpdateAmmoDisplay();
         UpdateHealthDisplay();
     }
+
+  
 
     void UpdateAmmoDisplay()
     {
@@ -40,7 +44,7 @@ public class PlayerUIController : MonoBehaviour
 
     void UpdateHealthDisplay()
     {
-        healthBar.value = gameManager.Player.GetCurrentHealthPercentage();
+        healthBar.value = GameManager.Singleton.Player.GetCurrentHealthPercentage();
     }
 
     public void UpdateNotification(string message)
