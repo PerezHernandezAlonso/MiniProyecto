@@ -11,6 +11,8 @@ public class WeaponSystem : MonoBehaviour
     [Header("Weapon Management")]
     public List<Weapon> weapons = new List<Weapon>();
     public int currentWeaponIndex = 0;
+    public GameObject Orbe;
+    public GameObject Libro;
 
     private bool isReloading = false;
     private float nextFireTime = 0f;
@@ -146,6 +148,16 @@ public class WeaponSystem : MonoBehaviour
 
         currentWeaponIndex = (currentWeaponIndex + 1) % weapons.Count;
         uiController.UpdateNotification("Arma cambiada a: " + weapons[currentWeaponIndex].weaponName);
+
+        if (currentWeaponIndex == 1)
+        {
+            Libro.SetActive(false);
+            Orbe.SetActive(true);
+        } else
+        {
+            Libro.SetActive(true);
+            Orbe.SetActive(false);
+        }
     }
 
     public bool CheckPause()
