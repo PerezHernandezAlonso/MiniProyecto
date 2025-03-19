@@ -164,4 +164,9 @@ public class WeaponSystem : MonoBehaviour
     {
         return Time.deltaTime <= 0.0f;
     }
+
+    public void AddWeapon(Weapon weapon)
+    {
+        weapons.Add(weapon);
+    }
 }

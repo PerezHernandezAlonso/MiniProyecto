@@ -20,7 +20,7 @@ namespace Game.UI
 
         public void StartGame()
         {
-            SceneManager.LoadScene("GameScene");
+            SceneManager.LoadScene("Nivel1");
         }
 
         public void QuitGame()

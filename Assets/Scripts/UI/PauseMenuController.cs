@@ -24,7 +24,7 @@ namespace Game.UI
                 inputActions.UI.Pause.performed += TogglePause;
             }
             SetSelectedButton(0);
-            inputActions.Enable();
+            inputActions.Player.Enable();
         }
 
         protected virtual void OnDisable()
@@ -54,13 +54,13 @@ namespace Game.UI
                     SetSelectedButton(0);
                 }
                 canNavigate = false;
-                inputActions.Disable();
+                inputActions.Player.Disable();
             }
             else
             {
                 EventSystem.current.SetSelectedGameObject(null);
                 canNavigate = true;
-                inputActions.Enable();
+                inputActions.Player.Enable();
             }
         }
 
@@ -71,7 +71,7 @@ namespace Game.UI
             Time.timeScale = 1f;
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
-            inputActions.Enable();
+            inputActions.Player.Enable();
         }
 
         public void OpenOptions()
