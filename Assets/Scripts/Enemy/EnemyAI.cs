@@ -14,17 +14,18 @@ public class EnemyAI : MonoBehaviour
     private Animator animator;
     private bool canAttack = true;
     private Vector3 originalPosition;
-
+    public GameObject enemigo;
     private void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
-
+        enemigo = GetComponent<GameObject>();
         originalPosition = transform.position;
 
         // Desactivar control automático del NavMeshAgent para Root Motion
         agent.updatePosition = true;
         agent.updateRotation = true;
+        
     }
 
     private void FixedUpdate()
@@ -39,10 +40,11 @@ public class EnemyAI : MonoBehaviour
         {
             ReturnToOriginalPosition();
         }
+
         
-       
+
         // Actualizar animaciones
-        
+
     }
 
     private void ChasePlayer(float distanceToPlayer)
@@ -105,10 +107,13 @@ public class EnemyAI : MonoBehaviour
     {
         if (animator)
         {
-            Vector3 rootMotionDelta = animator.deltaPosition; // Obtener el movimiento del Root Motion
-            rootMotionDelta.y = 0; // Evitar que el enemigo se mueva en el eje Y
-            transform.position += rootMotionDelta; // Aplicar el movimiento manualmente
-            transform.rotation = animator.rootRotation; // Aplicar la rotación de Root Motion
+            Vector3 rootMotionDelta = animator.deltaPosition;
+            rootMotionDelta.y = 0;
+            transform.position += rootMotionDelta;
+
+            // Solo permitir la rotación en Y
+            Quaternion targetRotation = animator.rootRotation;
+            transform.rotation = Quaternion.Euler(0, targetRotation.eulerAngles.y, 0);
         }
     }
 }

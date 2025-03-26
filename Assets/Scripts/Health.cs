@@ -57,7 +57,8 @@ public class Health : MonoBehaviour
        
         if (drop != null)
         {
-            GameObject DroppedItem = Instantiate(drop, transform.position, transform.rotation);
+            GameObject DroppedItem = Instantiate(drop, transform.position + Vector3.up * 1.5f, transform.rotation);
+
         }
         Destroy(gameObject);
 
